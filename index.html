@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title></title>
+  <title>Querying Wikipedia Snippets</title>
   <style>
 
 .query-form {
@@ -82,7 +82,8 @@ h2 {
     const submitButton = document.querySelector(".query-form > button#submit");
     const queryField = document.querySelector("input#query");
     submitButton.addEventListener("click", () => {
-      let formattedQuery = queryField.value.split('').join('+');
+      let formattedQuery = queryField.value.split(' ').join('+');
+
       fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${formattedQuery}&format=json&origin=*`)
       .then(res => {
         return res.json();
