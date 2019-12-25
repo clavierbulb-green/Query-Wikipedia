@@ -1,26 +1,37 @@
 const submitButton = document.querySelector(".query-form > button#submit");
 const queryField = document.querySelector("input#query");
-submitButton.addEventListener("click", () => {
-  let formattedQuery = queryField.value.split(' ').join('+');
+const matches = document.getElementById("matches");
 
-  fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${formattedQuery}&format=json&origin=*`)
-  .then(res => {
-    return res.json();
+submitButton.addEventListener("click", async () => {
+  const data = await queryWikipedia(queryField.value); 
+  const snippets = [];
+  data.query.search.forEach(match => {
+    snippets.push(match.snippet);
   })
-  .then(res => {
-    // display the snippets of each article that matched out query
-    const matches = document.getElementById("matches");
-    //first clear matches for previous query
-    while(matches.firstChild) {
-      matches.removeChild(matches.firstChild);
-    }
-    res.query.search.forEach(match => {
-      let listElement = document.createElement("li");
-      listElement.innerHTML = match.snippet;
-      matches.appendChild(listElement);
-    })
-  })
-    .catch(err => {
-      // TODO handle error
-    });
-});
+  updateList(matches, snippets);
+})
+
+function updateList(list, items) {
+  /* updates a given DOM element list with <li> for each item in items */
+
+  // first clear list
+  while(list.firstChild) {
+    list.removeChild(list.firstChild);
+  }
+
+  // append each item as a list item to the list
+  items.forEach(item => {
+    let listElement = document.createElement("li");
+    listElement.innerHTML = item;
+    list.appendChild(listElement);
+  });
+}
+
+async function queryWikipedia(query) {
+  /* return JSON data for Wikipedia articles matching a given search query */
+  let formattedQuery = query.split(' ').join('+');
+
+  const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${formattedQuery}&format=json&origin=*`);
+
+  return await response.json();
+};
