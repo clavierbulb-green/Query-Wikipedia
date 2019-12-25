@@ -3,12 +3,21 @@ const queryField = document.querySelector("input#query");
 const matches = document.getElementById("matches");
 
 submitButton.addEventListener("click", async () => {
-  const data = await queryWikipedia(queryField.value); 
   const snippets = [];
-  data.query.search.forEach(match => {
-    snippets.push(match.snippet);
-  })
-  updateList(matches, snippets);
+  try {
+    const data = await queryWikipedia(queryField.value)
+    if (data) {
+      data.query.search.forEach(match => {
+        snippets.push(match.snippet);
+      })
+    }
+  } 
+  catch(e) {
+    console.log(e);
+  }
+  finally {
+    updateList(matches, snippets);
+  }
 })
 
 function updateList(list, items) {
@@ -31,7 +40,12 @@ async function queryWikipedia(query) {
   /* return JSON data for Wikipedia articles matching a given search query */
   let formattedQuery = query.split(' ').join('+');
 
-  const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${formattedQuery}&format=json&origin=*`);
+  try {
+    const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${formattedQuery}&format=json&origin=*`)
 
-  return await response.json();
+    return await response.json()
+  }
+  catch (e) {
+    console.log(e);
+  }
 };
